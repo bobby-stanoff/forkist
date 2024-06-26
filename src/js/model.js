@@ -12,53 +12,72 @@ export const state = {
     resultsPerPage: RES_PER_PAGE,
   },
   bookmarks: [],
+  firstData: []
 };
 
 const createRecipeObject = function (data) {
-  const { recipe } = data.data;
+  const  recipe  = data;
   return {
     id: recipe.id,
-    title: recipe.title,
-    publisher: recipe.publisher,
-    sourceUrl: recipe.source_url,
-    image: recipe.image_url,
-    servings: recipe.servings,
-    cookingTime: recipe.cooking_time,
+    title: recipe.name,
+    publisher: recipe.author,
+    sourceUrl: recipe.recipeLink,
+    image: recipe.image,
+    servings: recipe.servings ?? 0,
+    cookingTime: recipe.cooking_time ?? 0,
     ingredients: recipe.ingredients,
+    preparation: recipe.preparation,
     ...(recipe.key && { key: recipe.key }),
   };
 };
 
 export const loadRecipe = async function (id) {
+  
   try {
     const data = await AJAX(`${API_URL}${id}`);
     state.recipe = createRecipeObject(data);
-
-    if (state.bookmarks.some(bookmark => bookmark.id === id))
+    if (state.bookmarks.some(bookmark => bookmark.id == id))
       state.recipe.bookmarked = true;
     else state.recipe.bookmarked = false;
-
-    console.log(state.recipe);
+    
   } catch (err) {
+    
     // Temp error handling
     console.error(`${err} 💥💥💥💥`);
     throw err;
   }
 };
-
+export const FirstLoad = async function(){
+  try{
+    let first_data = await AJAX(`${API_URL}`);
+    state.firstData = first_data.map(element => {
+      return createRecipeObject(element);
+    });
+    console.log(state.firstData)
+  }
+  catch (err) {
+    
+    // Temp error handling
+    console.error(`${err} 💥💥💥💥`);
+    throw err;
+  }
+}
 export const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
 
-    const data = await AJAX(`${API_URL}?search=${query}&key=${KEY}`);
+    const data = await AJAX(`${API_URL}search?name=${query}`);
     console.log(data);
-
-    state.search.results = data.data.recipes.map(rec => {
+    if(!Array.isArray(data)){
+      data = [];
+      state.search.results = []
+    }
+    state.search.results = data.map(rec => {
       return {
         id: rec.id,
-        title: rec.title,
-        publisher: rec.publisher,
-        image: rec.image_url,
+        title: rec.name,
+        publisher: rec.author,
+        image: rec.image,
         ...(rec.key && { key: rec.key }),
       };
     });
@@ -115,6 +134,7 @@ export const deleteBookmark = function (id) {
 const init = function () {
   const storage = localStorage.getItem('bookmarks');
   if (storage) state.bookmarks = JSON.parse(storage);
+  FirstLoad();
 };
 init();
 

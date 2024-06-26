@@ -11,6 +11,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import { async } from 'regenerator-runtime';
 import { AJAX } from './helpers.js';
+import previewView from './views/previewView.js';
 
 const controlRecipes = async function () {
   try {
@@ -83,6 +84,7 @@ const controlAddBookmark = function () {
 
   // 3) Render bookmarks
   bookmarksView.render(model.state.bookmarks);
+
 };
 
 const controlBookmarks = function () {
@@ -119,15 +121,19 @@ const controlAddRecipe = async function (newRecipe) {
     addRecipeView.renderError(err.message);
   }
 };
-
+const controlDefaultView = async function(){
+  await model.FirstLoad();
+  resultsView.render(model.state.firstData);
+}
 const init = function () {
-  AJAX(`http://localhost:5000/recipe/222`);
+  
+  controlDefaultView()
   bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
-  recipeView.addHandlerUpdateServings(controlServings);
+  //recipeView.addHandlerUpdateServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
-  paginationView.addHandlerClick(controlPagination);
-  addRecipeView.addHandlerUpload(controlAddRecipe);
+  // paginationView.addHandlerClick(controlPagination);
+  // addRecipeView.addHandlerUpload(controlAddRecipe);
 };
 init();

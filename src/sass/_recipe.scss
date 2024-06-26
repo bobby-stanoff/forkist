@@ -139,6 +139,9 @@
   }
 
   &__ingredient {
+    font-size: 1.6rem;
+    line-height: 1.4;
+    margin-bottom: 4rem;
     display: flex;
   }
 
@@ -155,7 +158,14 @@
     margin-right: 0.5rem;
     flex: 0 0 auto;
   }
-
+  &__preparation-list{
+    list-style: none;
+  }
+  &__preparation{
+    font-size: 1.6rem;
+  line-height: 1.4;
+    display: flex;
+  }
   ///////////
   // DIRECTIONS
   &__directions {
